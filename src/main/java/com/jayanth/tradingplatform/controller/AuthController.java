@@ -120,6 +120,18 @@ public class AuthController {
         return new UsernamePasswordAuthenticationToken(userDetails, password, userDetails.getAuthorities());
 
     }
+    public ResponseEntity<AuthResponse> verifySigninOtp(@PathVariable String otp, @RequestParam String id ) throws Exception {
+        TwoFactorOTP twoFactorOTP = twoFactorOTPService.findById(id);
+        if(twoFactorOTPService.verifyTwoFactorOTP(twoFactorOTP, otp)){
+            AuthResponse res = new AuthResponse();
+            res.setMessage("Two Factor Auth verified");
+            res.setTwoFactorAuthEnabled(true);
+            res.setJwt(twoFactorOTP.getJwt());
+            return new ResponseEntity<>(res, HttpStatus.OK);
+        }
+        throw new Exception("invalid OTP");
+
+    }
 
 
 }
