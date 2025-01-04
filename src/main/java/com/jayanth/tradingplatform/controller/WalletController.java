@@ -4,6 +4,7 @@ import com.jayanth.tradingplatform.model.Order;
 import com.jayanth.tradingplatform.model.User;
 import com.jayanth.tradingplatform.model.Wallet;
 import com.jayanth.tradingplatform.model.WalletTransaction;
+import com.jayanth.tradingplatform.service.OrderService;
 import com.jayanth.tradingplatform.service.UserService;
 import com.jayanth.tradingplatform.service.WalletService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,9 @@ public class WalletController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private OrderService orderService;
 
 
     @GetMapping("/user")
@@ -45,7 +49,11 @@ public class WalletController {
     @PutMapping("/api/wallet/order/{orderId}/pay")
     public ResponseEntity<Wallet> payOrderPayment(@RequestHeader ("authorization") String jwt,
                                                         @PathVariable long orderId) throws Exception {
-        Order order
+
+        User user = userService.findUserProfileByJwt(jwt);
+        Order order = orderService.getOrderById(orderId);
+
+        Wallet wallet = walletService.payorderPayment(order, user);
 
         return new ResponseEntity<>(wallet, HttpStatus.ACCEPTED);
     }
