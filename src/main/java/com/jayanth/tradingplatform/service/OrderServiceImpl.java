@@ -2,14 +2,12 @@ package com.jayanth.tradingplatform.service;
 
 import com.jayanth.tradingplatform.domain.OrderStatus;
 import com.jayanth.tradingplatform.domain.OrderType;
-import com.jayanth.tradingplatform.model.Coin;
-import com.jayanth.tradingplatform.model.Order;
-import com.jayanth.tradingplatform.model.OrderItem;
-import com.jayanth.tradingplatform.model.User;
+import com.jayanth.tradingplatform.model.*;
 import com.jayanth.tradingplatform.repository.OrderItemRepository;
 import com.jayanth.tradingplatform.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -55,7 +53,7 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.findByUserId(userId);
     }
 
-    private OrderItem createOrderItem(Coin coin, double quantity, double buyPrice, double sellPrice){
+    private OrderItem createOrderItem(Coin coin, double quantity, BigDecimal buyPrice, double sellPrice){
         OrderItem orderItem = new OrderItem();
         orderItem.setCoin(coin);
         orderItem.setQuantity(quantity);
@@ -64,6 +62,7 @@ public class OrderServiceImpl implements OrderService {
         return orderItemRepository.save(orderItem);
     }
 
+    @Transactional
     public Order buyAsset(Coin coin, double quantity, User user) throws Exception {
         if(quantity <= 0){
             throw new Exception("quantity should be greater than 0");
@@ -77,14 +76,57 @@ public class OrderServiceImpl implements OrderService {
 
         walletService.payorderPayment(order, user);
 
+        order.setStatus(OrderStatus.SUCCESS);
+        order.setOrderType(OrderType.BUY);
+        Order savedOrder = orderRepository.save(order);
 
-        return null;
+        //create asset
+        return savedOrder;
     }
 
+    @Transactional
+    public Order SellAsset(Coin coin, double quantity, User user) throws Exception {
+        if(quantity <= 0){
+            throw new Exception("quantity should be greater than 0");
+
+        }
+        BigDecimal SellPrice = coin.getCurrentPrice();
+        BigDecimal buyPrice = assetToSell.getPrice();
+        OrderItem orderItem = createOrderItem(coin, quantity, 0, SellPrice);
+
+        Order order = createOrder(user, orderItem, OrderType.SELL);
+        orderItem.setOrder(order);
+
+        if(assetToSell.getQuantity() >= quantity){
+            order.setStatus(OrderStatus.SUCCESS);
+            order.setOrderType(OrderType.SELL);
+            Order savedOrder = orderRepository.save(order);
+            walletService.payorderPayment(order, user);
+
+            Asset updatedAsset = assetService.updateAsset(assetToSell.getId(), -quantity);
+            if(updatedAsset.getQuantity()* coin.getCurrentPrice() <=1){
+                assetService.deleteAsset(updatedAsset);
+            }
+            return savedOrder;
+        }
+
+        throw new Exception("Insufficient quantity to sell");
+
+        //create asset
+
+    }
+
+
     @Override
-    public Order processOrder(Coin coin, double quantity, OrderType orderType, User user) {
+    @Transactional
+    public Order processOrder(Coin coin, double quantity, OrderType orderType, User user) throws Exception {
+        if(orderType == OrderType.BUY) {
+            return buyAsset(coin, quantity, user);
+        }
+        else if(orderType == OrderType.SELL) {
+            return SellAsset(coin, quantity, user);
+        }
 
-
-        return null;
+        throw new Exception("invalid order type");
     }
 }

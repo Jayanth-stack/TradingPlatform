@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Entity
 @Data
 public class OrderItem {
@@ -17,7 +19,7 @@ public class OrderItem {
     @ManyToOne
     private Coin coin;
 
-    private double buyPrice;
+    private BigDecimal buyPrice;
 
     private double sellPrice;
 
