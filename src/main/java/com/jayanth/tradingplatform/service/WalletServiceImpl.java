@@ -50,7 +50,7 @@ public class WalletServiceImpl implements WalletService{
     public Wallet walletoWalletTransaction(User sender, Wallet recipient, long amount) throws Exception {
         Wallet senderWallet = getUserWallet(sender);
         if(senderWallet.getBalance().compareTo(BigDecimal.valueOf(amount)) < 0){
-            throw new Exception("unsufficient balance");
+            throw new Exception("insufficient balance");
         }
         BigDecimal senderBalance = senderWallet
                 .getBalance()

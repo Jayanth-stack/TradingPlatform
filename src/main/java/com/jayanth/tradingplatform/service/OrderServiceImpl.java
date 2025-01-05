@@ -6,8 +6,8 @@ import com.jayanth.tradingplatform.model.Coin;
 import com.jayanth.tradingplatform.model.Order;
 import com.jayanth.tradingplatform.model.OrderItem;
 import com.jayanth.tradingplatform.model.User;
+import com.jayanth.tradingplatform.repository.OrderItemRepository;
 import com.jayanth.tradingplatform.repository.OrderRepository;
-import org.aspectj.weaver.ast.Or;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +24,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private WalletService walletService;
+
+    @Autowired
+    private OrderItemRepository orderItemRepository;
 
     @Override
     public Order createOrder(User user, OrderItem orderItem, OrderType orderType) {
@@ -42,16 +45,46 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Order getOrderById(long orderId) {
-        return null;
+
+        return orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Order not found"));
     }
 
     @Override
     public List<Order> getAllOrdersOfUsers(Long userId, OrderType orderType, String assetSymbol) {
-        return List.of();
+
+        return orderRepository.findByUserId(userId);
+    }
+
+    private OrderItem createOrderItem(Coin coin, double quantity, double buyPrice, double sellPrice){
+        OrderItem orderItem = new OrderItem();
+        orderItem.setCoin(coin);
+        orderItem.setQuantity(quantity);
+        orderItem.setBuyPrice(buyPrice);
+        orderItem.setSellPrice(sellPrice);
+        return orderItemRepository.save(orderItem);
+    }
+
+    public Order buyAsset(Coin coin, double quantity, User user) throws Exception {
+        if(quantity <= 0){
+            throw new Exception("quantity should be greater than 0");
+
+        }
+        BigDecimal buyPrice = coin.getCurrentPrice();
+        OrderItem orderItem = createOrderItem(coin, quantity, buyPrice, 0);
+
+        Order order = createOrder(user, orderItem, OrderType.BUY);
+        orderItem.setOrder(order);
+
+        walletService.payorderPayment(order, user);
+
+
+        return null;
     }
 
     @Override
     public Order processOrder(Coin coin, double quantity, OrderType orderType, User user) {
+
+
         return null;
     }
 }
