@@ -27,7 +27,9 @@ public class AssetServiceImpl implements AssetService {
 
     @Override
     public Asset getAssetById(Long assetId) {
-        return null;
+
+        return assetRepository.findById(assetId)
+                .orElseThrow(() -> new RuntimeException("Asset not found"));
     }
 
     @Override
@@ -37,21 +39,24 @@ public class AssetServiceImpl implements AssetService {
 
     @Override
     public List<Asset> getUserAssets(Long userId) {
-        return List.of();
+        return assetRepository.findByUserId(userId);
     }
 
     @Override
     public Asset updateAsset(Long assetId, double quantity) {
-        return null;
+        Asset oldAsset = getAssetById(assetId);
+        oldAsset.setQuantity(quantity + oldAsset.getQuantity());
+
+        return assetRepository.save(oldAsset);
     }
 
     @Override
     public Asset findAssetByUserIdAndCoinId(Long userId, String coinId) {
-        return null;
+        return assetRepository.findByUserIdAndCoinId(userId, coinId);
     }
 
     @Override
     public void deleteAsset(Long assetId) {
-
+        assetRepository.deleteById(assetId);
     }
 }

@@ -21,7 +21,7 @@ public class OrderItem {
 
     private BigDecimal buyPrice;
 
-    private double sellPrice;
+    private BigDecimal sellPrice;
 
     @JsonIgnore
     @OneToOne

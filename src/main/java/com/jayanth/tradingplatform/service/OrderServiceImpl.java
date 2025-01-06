@@ -26,6 +26,9 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private OrderItemRepository orderItemRepository;
 
+    @Autowired
+    private AssetService assetService;
+
     @Override
     public Order createOrder(User user, OrderItem orderItem, OrderType orderType) {
         BigDecimal price = orderItem.getCoin().getCurrentPrice()
@@ -44,16 +47,19 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Order getOrderById(long orderId) {
 
-        return orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Order not found"));
+        return orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
     }
 
     @Override
-    public List<Order> getAllOrdersOfUsers(Long userId, OrderType orderType, String assetSymbol) {
+    public List<Order> getAllOrdersOfUsers(Long userId,
+                                           OrderType orderType, String assetSymbol) {
 
         return orderRepository.findByUserId(userId);
     }
 
-    private OrderItem createOrderItem(Coin coin, double quantity, BigDecimal buyPrice, double sellPrice){
+    private OrderItem createOrderItem(Coin coin, double quantity,
+                                      BigDecimal buyPrice, BigDecimal sellPrice){
         OrderItem orderItem = new OrderItem();
         orderItem.setCoin(coin);
         orderItem.setQuantity(quantity);
@@ -69,7 +75,7 @@ public class OrderServiceImpl implements OrderService {
 
         }
         BigDecimal buyPrice = coin.getCurrentPrice();
-        OrderItem orderItem = createOrderItem(coin, quantity, buyPrice, 0);
+        OrderItem orderItem = createOrderItem(coin, quantity, buyPrice, BigDecimal.valueOf(0));
 
         Order order = createOrder(user, orderItem, OrderType.BUY);
         orderItem.setOrder(order);
@@ -81,6 +87,13 @@ public class OrderServiceImpl implements OrderService {
         Order savedOrder = orderRepository.save(order);
 
         //create asset
+        Asset oldAsset = assetService.findAssetByUserIdAndCoinId(order.getUser().getId(),
+                order.getOrderItem().getCoin().getId());
+        if(oldAsset == null){
+            assetService.createAsset(user, orderItem.getCoin(), orderItem.getQuantity());
+        }else{
+            assetService.updateAsset(oldAsset.getId(), quantity);
+        }
         return savedOrder;
     }
 
@@ -91,26 +104,33 @@ public class OrderServiceImpl implements OrderService {
 
         }
         BigDecimal SellPrice = coin.getCurrentPrice();
-        BigDecimal buyPrice = assetToSell.getPrice();
-        OrderItem orderItem = createOrderItem(coin, quantity, 0, SellPrice);
+        Asset assetToSell = assetService.findAssetByUserIdAndCoinId(user.getId(),
+                coin.getId());
+        BigDecimal buyPrice = assetToSell.getBuyPrice();
+        if(assetToSell == null) {
+            OrderItem orderItem = createOrderItem(coin, quantity, buyPrice, SellPrice);
 
-        Order order = createOrder(user, orderItem, OrderType.SELL);
-        orderItem.setOrder(order);
+            Order order = createOrder(user, orderItem, OrderType.SELL);
+            orderItem.setOrder(order);
 
-        if(assetToSell.getQuantity() >= quantity){
-            order.setStatus(OrderStatus.SUCCESS);
-            order.setOrderType(OrderType.SELL);
-            Order savedOrder = orderRepository.save(order);
-            walletService.payorderPayment(order, user);
+            if (assetToSell.getQuantity() >= quantity) {
+                order.setStatus(OrderStatus.SUCCESS);
+                order.setOrderType(OrderType.SELL);
+                Order savedOrder = orderRepository.save(order);
+                walletService.payorderPayment(order, user);
 
-            Asset updatedAsset = assetService.updateAsset(assetToSell.getId(), -quantity);
-            if(updatedAsset.getQuantity()* coin.getCurrentPrice() <=1){
-                assetService.deleteAsset(updatedAsset);
+                Asset updateAsset = assetService.updateAsset(assetToSell.getId(), -quantity);
+
+                Asset updatedAsset = assetService.updateAsset(assetToSell.getId(), -quantity);
+                if (updatedAsset.getQuantity() *  coin.getCurrentPrice().doubleValue() <= 1) {
+                    assetService.deleteAsset(updatedAsset.getId());
+                }
+                return savedOrder;
             }
-            return savedOrder;
-        }
 
-        throw new Exception("Insufficient quantity to sell");
+            throw new Exception("Insufficient quantity to sell");
+        }
+        throw new Exception("Asset Not found");
 
         //create asset
 
@@ -119,7 +139,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public Order processOrder(Coin coin, double quantity, OrderType orderType, User user) throws Exception {
+    public Order processOrder(Coin coin, double quantity,
+                              OrderType orderType, User user) throws Exception {
         if(orderType == OrderType.BUY) {
             return buyAsset(coin, quantity, user);
         }

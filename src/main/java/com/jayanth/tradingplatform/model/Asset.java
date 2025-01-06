@@ -22,4 +22,5 @@ public class Asset {
 
     @ManyToOne
     private User user;
+
 }
