@@ -107,7 +107,7 @@ public class OrderServiceImpl implements OrderService {
         Asset assetToSell = assetService.findAssetByUserIdAndCoinId(user.getId(),
                 coin.getId());
         BigDecimal buyPrice = assetToSell.getBuyPrice();
-        if(assetToSell == null) {
+        if(assetToSell != null) {
             OrderItem orderItem = createOrderItem(coin, quantity, buyPrice, SellPrice);
 
             Order order = createOrder(user, orderItem, OrderType.SELL);
