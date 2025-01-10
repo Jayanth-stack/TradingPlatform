@@ -41,5 +41,13 @@ public class PaymentDetailController {
 
         return new ResponseEntity<>(paymentDetails, HttpStatus.CREATED);
     }
+    @PostMapping("/deletePayment")
+    public ResponseEntity<PaymentDetails> deletePaymentDetails(@RequestHeader("Authorization") String jwt) throws Exception {
+        User user = userService.findUserProfileByJwt(jwt);
+
+        PaymentDetails paymentDetails = paymentDetailsService.getUserPaymentDetails(user);
+
+        return new ResponseEntity<>(paymentDetails, HttpStatus.OK);
+    }
 
 }
