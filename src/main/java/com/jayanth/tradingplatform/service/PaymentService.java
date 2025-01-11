@@ -4,6 +4,7 @@ import com.jayanth.tradingplatform.domain.PaymentMethod;
 import com.jayanth.tradingplatform.model.PaymentOrder;
 import com.jayanth.tradingplatform.model.User;
 import com.jayanth.tradingplatform.response.PaymentResponse;
+import com.razorpay.RazorpayException;
 
 public interface PaymentService {
 
@@ -11,7 +12,7 @@ public interface PaymentService {
 
     PaymentOrder getPaymentOrderById(Long id) throws Exception;
 
-    Boolean proceedPaymentOrder(PaymentOrder paymentOrder, String paymentId);
+    Boolean proceedPaymentOrder(PaymentOrder paymentOrder, String paymentId) throws RazorpayException;
 
     PaymentResponse createRazorPaymentLink(User user, Long amount);
 
