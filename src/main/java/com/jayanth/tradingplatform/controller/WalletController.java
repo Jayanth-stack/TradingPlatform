@@ -1,10 +1,9 @@
 package com.jayanth.tradingplatform.controller;
 
-import com.jayanth.tradingplatform.model.Order;
-import com.jayanth.tradingplatform.model.User;
-import com.jayanth.tradingplatform.model.Wallet;
-import com.jayanth.tradingplatform.model.WalletTransaction;
+import com.jayanth.tradingplatform.model.*;
+import com.jayanth.tradingplatform.response.PaymentResponse;
 import com.jayanth.tradingplatform.service.OrderService;
+import com.jayanth.tradingplatform.service.PaymentService;
 import com.jayanth.tradingplatform.service.UserService;
 import com.jayanth.tradingplatform.service.WalletService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +23,9 @@ public class WalletController {
 
     @Autowired
     private OrderService orderService;
+
+    @Autowired
+    private PaymentService paymentService;
 
 
     @GetMapping("/user")
@@ -54,6 +56,25 @@ public class WalletController {
         Order order = orderService.getOrderById(orderId);
 
         Wallet wallet = walletService.payorderPayment(order, user);
+
+        return new ResponseEntity<>(wallet, HttpStatus.ACCEPTED);
+    }
+
+    @PutMapping("/api/wallet/deposit")
+    public ResponseEntity<Wallet> addBalanceToWallet(@RequestHeader ("authorization") String jwt,
+                                                   @RequestParam (name = "orderId") Long orderId,
+                                                   @RequestParam(name = "payment_id") String paymentId) throws Exception {
+
+        User user = userService.findUserProfileByJwt(jwt);
+        Wallet wallet = walletService.getUserWallet(user);
+
+        PaymentOrder paymentOrder = paymentService.getPaymentOrderById(orderId);
+        Boolean status = paymentService.proceedPaymentOrder(paymentOrder, paymentId);
+
+        if(status){
+            wallet = walletService.addBalance(wallet, paymentOrder.getAmount());
+        }
+
 
         return new ResponseEntity<>(wallet, HttpStatus.ACCEPTED);
     }

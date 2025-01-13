@@ -5,6 +5,7 @@ import com.jayanth.tradingplatform.model.PaymentOrder;
 import com.jayanth.tradingplatform.model.User;
 import com.jayanth.tradingplatform.response.PaymentResponse;
 import com.razorpay.RazorpayException;
+import com.stripe.exception.StripeException;
 
 public interface PaymentService {
 
@@ -14,7 +15,7 @@ public interface PaymentService {
 
     Boolean proceedPaymentOrder(PaymentOrder paymentOrder, String paymentId) throws RazorpayException;
 
-    PaymentResponse createRazorPaymentLink(User user, Long amount);
+    PaymentResponse createRazorPaymentLink(User user, Long amount) throws RazorpayException;
 
-    PaymentResponse createStripePaymentLink(User user, Long amount, Long orderId);
+    PaymentResponse createStripePaymentLink(User user, Long amount, Long orderId) throws StripeException;
 }
