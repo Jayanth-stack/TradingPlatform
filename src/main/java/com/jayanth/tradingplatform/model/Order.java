@@ -7,9 +7,11 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Data
+@Table(name = "orders")
 public class Order {
 
     @Id
