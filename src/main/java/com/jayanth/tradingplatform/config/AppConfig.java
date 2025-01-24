@@ -17,7 +17,6 @@ import java.util.Arrays;
 
 
 @Configuration
-@EnableWebSecurity
 public class AppConfig {
     @Bean
     SecurityFilterChain securityFilterChain (HttpSecurity httpSession) throws Exception {

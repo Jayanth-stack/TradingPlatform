@@ -7,8 +7,8 @@ LABEL maintainer="jayanthalapati@gmail.com"
 # Add a volume pointing to /tmp
 VOLUME /tmp
 
-# Make port 8080 available
-EXPOSE 8080
+
+EXPOSE 5454
 
 # Update the JAR_FILE argument to match your actual jar name
 # This should match your pom.xml or build.gradle artifact name
