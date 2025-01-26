@@ -16,21 +16,21 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.crypto.SecretKey;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.jayanth.tradingplatform.config.JwtConstant.SECRET;
 
 public class JwtTokenValidator extends OncePerRequestFilter {
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         String jwt = request.getHeader(JwtConstant.jwtHeader);
 
-        if(jwt != null) {
-            jwt = jwt.substring(7);
+        if (jwt != null && jwt.startsWith("Bearer ")) {
+            jwt = jwt.substring(7); // Remove "Bearer " prefix
             try {
-                SecretKey key = Keys.hmacShaKeyFor(JwtConstant.SECRET.getBytes());
+                SecretKey key = Keys.hmacShaKeyFor(SECRET.getBytes());
                 Claims claims = Jwts.parser()
                         .setSigningKey(key)
                         .build()
@@ -38,7 +38,7 @@ public class JwtTokenValidator extends OncePerRequestFilter {
                         .getBody();
 
                 String email = String.valueOf(claims.get("email"));
-                String authorities = String.valueOf(claims.get("authorities"));
+                String authorities = String.valueOf(claims.get("Authorities")); // Ensure case matches JwtProvider
                 List<GrantedAuthority> grantedAuthorities =
                         AuthorityUtils.commaSeparatedStringToAuthorityList(authorities);
 
@@ -47,11 +47,14 @@ public class JwtTokenValidator extends OncePerRequestFilter {
 
                 SecurityContextHolder.getContext().setAuthentication(auth);
             } catch (Exception e) {
-                // Log the error but don't throw exception
                 logger.error("Invalid JWT token", e);
                 SecurityContextHolder.clearContext();
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 Unauthorized
+                response.getWriter().write("Invalid JWT token");
+                return; // Stop further processing
             }
         }
+
         filterChain.doFilter(request, response);
     }
 }
