@@ -1,6 +1,7 @@
 package com.jayanth.tradingplatform.config;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.FilterChain;
@@ -37,8 +38,15 @@ public class JwtTokenValidator extends OncePerRequestFilter {
                         .parseClaimsJws(jwt)
                         .getBody();
 
+                // Check if token is expired
+                if (claims.getExpiration().getTime() < System.currentTimeMillis()) {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.getWriter().write("Token has expired");
+                    return;
+                }
+
                 String email = String.valueOf(claims.get("email"));
-                String authorities = String.valueOf(claims.get("Authorities")); // Ensure case matches JwtProvider
+                String authorities = String.valueOf(claims.get("Authorities"));
                 List<GrantedAuthority> grantedAuthorities =
                         AuthorityUtils.commaSeparatedStringToAuthorityList(authorities);
 
@@ -46,12 +54,14 @@ public class JwtTokenValidator extends OncePerRequestFilter {
                         email, null, grantedAuthorities);
 
                 SecurityContextHolder.getContext().setAuthentication(auth);
+            } catch (ExpiredJwtException e) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("Token has expired");
+                return;
             } catch (Exception e) {
-                logger.error("Invalid JWT token", e);
-                SecurityContextHolder.clearContext();
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 Unauthorized
-                response.getWriter().write("Invalid JWT token");
-                return; // Stop further processing
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("Invalid JWT token: " + e.getMessage());
+                return;
             }
         }
 

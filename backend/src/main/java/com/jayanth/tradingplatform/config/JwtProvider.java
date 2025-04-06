@@ -1,6 +1,7 @@
 package com.jayanth.tradingplatform.config;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.Authentication;
@@ -18,10 +19,12 @@ public class JwtProvider {
 
     public static String generateToken(Authentication auth) {
         String roles = populateAuthorities(auth.getAuthorities());
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + EXPIRATION_TIME);
 
         return Jwts.builder()
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
                 .claim("email", auth.getName())
                 .claim("Authorities", roles)
                 .signWith(key)
@@ -30,15 +33,21 @@ public class JwtProvider {
 
     public static String getEmailFromToken(String token) {
         try {
-            token = token.substring(7); // Remove "Bearer " prefix
+            if (token != null && token.startsWith("Bearer ")) {
+                token = token.substring(7);
+            }
+            
             Claims claims = Jwts.parser()
                     .setSigningKey(key)
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
+                    
             return String.valueOf(claims.get("email"));
+        } catch (ExpiredJwtException e) {
+            throw new RuntimeException("Token has expired", e);
         } catch (Exception e) {
-            throw new RuntimeException("Invalid token", e); // Or a custom exception
+            throw new RuntimeException("Invalid token: " + e.getMessage(), e);
         }
     }
 
