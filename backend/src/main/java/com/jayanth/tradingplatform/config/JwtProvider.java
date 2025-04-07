@@ -1,16 +1,21 @@
 package com.jayanth.tradingplatform.config;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-
-import javax.crypto.SecretKey;
 import java.util.Collection;
 import java.util.Date;
 import java.util.stream.Collectors;
+
+import javax.crypto.SecretKey;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.SignatureException;
+import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.security.Keys;
 
 public class JwtProvider {
 
@@ -46,7 +51,7 @@ public class JwtProvider {
             return String.valueOf(claims.get("email"));
         } catch (ExpiredJwtException e) {
             throw new RuntimeException("Token has expired", e);
-        } catch (Exception e) {
+        } catch (MalformedJwtException | SignatureException | UnsupportedJwtException e) {
             throw new RuntimeException("Invalid token: " + e.getMessage(), e);
         }
     }
