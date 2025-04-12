@@ -48,7 +48,7 @@ public class JwtTokenValidator extends OncePerRequestFilter {
             try {
                 SecretKey key = Keys.hmacShaKeyFor(SECRET.getBytes());
 
-                Claims claims = Jwts.parserBuilder()
+                Claims claims = Jwts.builder()
                         .setSigningKey(key)
                         .build()
                         .parseClaimsJws(jwt)
