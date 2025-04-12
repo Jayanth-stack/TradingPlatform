@@ -20,5 +20,7 @@ public interface CoinService {
 
     String getTradingCoins() throws Exception;
 
+    List<Coin> getAllCoins();
+
 
 }

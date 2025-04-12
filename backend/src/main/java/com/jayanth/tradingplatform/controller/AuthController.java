@@ -10,6 +10,8 @@ import com.jayanth.tradingplatform.service.CustomUserDetailsService;
 import com.jayanth.tradingplatform.service.EmailService;
 import com.jayanth.tradingplatform.service.TwoFactorOTPService;
 import com.jayanth.tradingplatform.utils.OtpUtils;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,7 +41,7 @@ public class AuthController {
 
 
     @PostMapping("/signup")
-    public ResponseEntity<AuthResponse> register(@RequestBody User user) throws Exception {
+    public ResponseEntity<AuthResponse> register(@RequestBody User user, HttpServletResponse response) throws Exception {
 
 
         User isEmailExist = userRepository.findByEmail(user.getEmail());
@@ -62,15 +64,27 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         String jwt = JwtProvider.generateToken(auth);
+
+        // Create the cookie
+        Cookie jwtCookie = new Cookie("jwt", jwt);
+        jwtCookie.setHttpOnly(true);
+        jwtCookie.setSecure(true); // Only send over HTTPS
+        jwtCookie.setPath("/"); // Cookie is valid for the entire domain
+        jwtCookie.setDomain("localhost"); // Set the domain
+        jwtCookie.setSameSite("Strict"); // Prevent CSRF attacks
+
+
+        // Add the cookie to the response
+        response.addCookie(jwtCookie);
+
         AuthResponse authResponse = new AuthResponse();
-        authResponse.setJwt(jwt);
         authResponse.setStatus(true);
         authResponse.setMessage("Success");
 
         return new ResponseEntity<>(authResponse, HttpStatus.CREATED);
     }
     @PostMapping("/signin")
-    public ResponseEntity<AuthResponse> login(@RequestBody User user) throws Exception {
+    public ResponseEntity<AuthResponse> login(@RequestBody User user, HttpServletResponse response) throws Exception {
 
         String username = user.getEmail();
         String password = user.getPassword();
@@ -80,6 +94,17 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         String jwt = JwtProvider.generateToken(auth);
+
+        // Create the cookie
+        Cookie jwtCookie = new Cookie("jwt", jwt);
+        jwtCookie.setHttpOnly(true);
+        jwtCookie.setSecure(true); // Only send over HTTPS
+        jwtCookie.setPath("/"); // Cookie is valid for the entire domain	
+        jwtCookie.setDomain("localhost"); // Set the domain
+        jwtCookie.setSameSite("Strict"); // Prevent CSRF attacks
+
+        // Add the cookie to the response
+        response.addCookie(jwtCookie);
 
         User authUser = userRepository.findByEmail(username);
 
@@ -99,7 +124,6 @@ public class AuthController {
         }
 
         AuthResponse authResponse = new AuthResponse();
-        authResponse.setJwt(jwt);
         authResponse.setStatus(true);
         authResponse.setMessage("Login Success");
 

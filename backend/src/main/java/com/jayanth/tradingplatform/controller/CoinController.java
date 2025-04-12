@@ -7,13 +7,13 @@ import com.jayanth.tradingplatform.service.CoinService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.parameters.P;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/coins")
+@RequestMapping("/api/assets")
 public class CoinController {
 
     @Autowired
@@ -24,6 +24,13 @@ public class CoinController {
 
 
     @GetMapping
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<List<Coin>> getAllCoins() {
+        List<Coin> coins = coinService.getAllCoins();
+        return new ResponseEntity<>(coins, HttpStatus.OK);
+    }
+
+    @GetMapping("/coins")
     ResponseEntity<List<Coin>> getCoinList(@RequestParam("page") int page) throws Exception {
         List<Coin> coins = coinService.getCoinsList(page);
 
