@@ -1,46 +1,101 @@
-# Getting Started with Create React App
+# Trading Platform Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A modern, responsive cryptocurrency trading platform built with React, TypeScript, and Material UI.
+
+## Features
+
+- **Responsive Design**: Works seamlessly on desktop, tablet, and mobile devices
+- **Real-time Data**: View cryptocurrency prices and market data in real-time
+- **Interactive Charts**: Visualize price movements with interactive charts
+- **Portfolio Management**: Track your cryptocurrency portfolio
+- **Order Execution**: Buy and sell cryptocurrencies
+- **Watchlist**: Create and manage your personalized watchlist
+- **Authentication**: Secure login with two-factor authentication
+- **Dark/Light Mode**: Choose between light and dark interface themes
+
+## Technology Stack
+
+- **React 18**: Modern UI library for building user interfaces
+- **TypeScript**: Type-safe JavaScript for better developer experience
+- **Material UI**: Modern UI component library
+- **React Router**: Client-side routing
+- **React Query**: Data fetching and caching
+- **Zustand**: State management
+- **ApexCharts**: Interactive data visualization
+- **React Hook Form**: Form handling with validation
+- **Vite**: Fast build tool and development server
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v14.x or later)
+- npm or yarn
+
+### Installation
+
+1. Clone the repository
+   ```bash
+   git clone <repository-url>
+   cd trading-platform
+   ```
+
+2. Install dependencies
+   ```bash
+   cd frontend
+   npm install
+   # or
+   yarn install
+   ```
+
+3. Start the development server
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
+
+4. Open your browser and navigate to `http://localhost:5173`
 
 ## Available Scripts
 
-In the project directory, you can run:
+- `npm run dev` - Start the development server
+- `npm run build` - Build the app for production
+- `npm run preview` - Preview the production build locally
 
-### `npm start`
+## Project Structure
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+```
+frontend/
+├── public/              # Static assets
+├── src/
+│   ├── assets/          # Images, fonts, etc.
+│   ├── components/      # Reusable components
+│   │   ├── charts/      # Chart components
+│   │   ├── forms/       # Form components
+│   │   ├── layout/      # Layout components
+│   │   └── ui/          # UI components
+│   ├── features/        # Feature-based modules
+│   │   ├── auth/        # Authentication features
+│   │   ├── dashboard/   # Dashboard features
+│   │   ├── market/      # Market data features
+│   │   ├── orders/      # Order management features
+│   │   ├── profile/     # User profile features
+│   │   ├── wallet/      # Wallet features
+│   │   └── watchlist/   # Watchlist features
+│   ├── hooks/           # Custom React hooks
+│   ├── lib/             # Library configurations
+│   ├── services/        # API services
+│   ├── store/           # State management
+│   ├── types/           # TypeScript type definitions
+│   ├── utils/           # Utility functions
+│   ├── App.tsx          # Main App component
+│   └── index.tsx        # Entry point
+├── package.json         # Dependencies and scripts
+├── tsconfig.json        # TypeScript configuration
+└── vite.config.ts       # Vite configuration
+```
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Backend Integration
 
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+This frontend is designed to work with the Trading Platform backend API. The API endpoints are configured in the services directory, and proxied through Vite's development server.

@@ -42,23 +42,25 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<AuthResponse> register(@RequestBody User user, HttpServletResponse response) throws Exception {
+        // Extract user fields
+        String email = user.getEmail();
+        String password = user.getPassword();
+        String fullName = user.getFullName();
 
-
-        User isEmailExist = userRepository.findByEmail(user.getEmail());
-        if (isEmailExist !=null) {
+        User isEmailExist = userRepository.findByEmail(email);
+        if (isEmailExist != null) {
             throw new Exception("email is already accessed");
         }
 
         User newUser = new User();
-        newUser.setEmail(user.getEmail());
-        newUser.setPassword(user.getPassword());
-        newUser.setEmail(user.getEmail());
-        newUser.setFullName(user.getFullName());
+        newUser.setEmail(email);
+        newUser.setPassword(password);
+        newUser.setFullName(fullName);
 
         User savedUser = userRepository.save(newUser);
         Authentication auth = new UsernamePasswordAuthenticationToken(
-                user.getEmail(),
-                user.getPassword()
+                email,
+                password
                 );
 
         SecurityContextHolder.getContext().setAuthentication(auth);
@@ -71,8 +73,7 @@ public class AuthController {
         jwtCookie.setSecure(true); // Only send over HTTPS
         jwtCookie.setPath("/"); // Cookie is valid for the entire domain
         jwtCookie.setDomain("localhost"); // Set the domain
-        jwtCookie.setSameSite("Strict"); // Prevent CSRF attacks
-
+        // Cannot use setSameSite as it's not supported in Jakarta Servlet Cookie class
 
         // Add the cookie to the response
         response.addCookie(jwtCookie);
@@ -83,9 +84,10 @@ public class AuthController {
 
         return new ResponseEntity<>(authResponse, HttpStatus.CREATED);
     }
+    
     @PostMapping("/signin")
     public ResponseEntity<AuthResponse> login(@RequestBody User user, HttpServletResponse response) throws Exception {
-
+        // Extract user fields
         String username = user.getEmail();
         String password = user.getPassword();
 
@@ -101,17 +103,17 @@ public class AuthController {
         jwtCookie.setSecure(true); // Only send over HTTPS
         jwtCookie.setPath("/"); // Cookie is valid for the entire domain	
         jwtCookie.setDomain("localhost"); // Set the domain
-        jwtCookie.setSameSite("Strict"); // Prevent CSRF attacks
+        // Cannot use setSameSite as it's not supported in Jakarta Servlet Cookie class
 
         // Add the cookie to the response
         response.addCookie(jwtCookie);
 
         User authUser = userRepository.findByEmail(username);
 
-        if(user.getTwoFactorAuth().isEnabled()){
+        if(user.getTwoFactorAuth() != null && user.getTwoFactorAuth().isEnabled()){
             AuthResponse authResponse = new AuthResponse();
             authResponse.setMessage("Two Factor Auth is enabled");
-            authResponse.setTwoFactorAuthEnabled(true);
+            authResponse.setIsTwoFactorAuthEnabled(true);
             String otp = OtpUtils.generateOtp();
             TwoFactorOTP oldTwoFactorOTP = twoFactorOTPService.findByUser(authUser.getId());
             if(oldTwoFactorOTP != null){
@@ -135,29 +137,25 @@ public class AuthController {
 
         if(userDetails == null) {
             throw new BadCredentialsException("Invalid username or password");
-
         }
+        
         if(!password.equals(userDetails.getPassword())) {
             throw new BadCredentialsException("Invalid password");
         }
 
         return new UsernamePasswordAuthenticationToken(userDetails, password, userDetails.getAuthorities());
-
     }
 
     @PostMapping("/twofactor/otp/{otp}")
-    public ResponseEntity<AuthResponse> verifySigninOtp(@PathVariable String otp, @RequestParam String id ) throws Exception {
+    public ResponseEntity<AuthResponse> verifySigninOtp(@PathVariable String otp, @RequestParam String id) throws Exception {
         TwoFactorOTP twoFactorOTP = twoFactorOTPService.findById(id);
         if(twoFactorOTPService.verifyTwoFactorOTP(twoFactorOTP, otp)){
             AuthResponse res = new AuthResponse();
             res.setMessage("Two Factor Auth verified");
-            res.setTwoFactorAuthEnabled(true);
+            res.setIsTwoFactorAuthEnabled(true);
             res.setJwt(twoFactorOTP.getJwt());
             return new ResponseEntity<>(res, HttpStatus.OK);
         }
         throw new Exception("invalid OTP");
-
     }
-
-
 }
