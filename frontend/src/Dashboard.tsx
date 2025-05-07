@@ -14,7 +14,7 @@ const Dashboard: React.FC = () => {
 
     const fetchDashboardData = async () => {
       try {
-        const response = await fetch('/api/dashboard', {
+        const response = await fetch('http://localhost:8080/api/dashboard', {
           headers: {
             'Authorization': `Bearer ${token}`,
           },

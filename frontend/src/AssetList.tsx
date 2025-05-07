@@ -20,7 +20,7 @@ const AssetList: React.FC = () => {
   useEffect(() => {
     const fetchAssets = async () => {
       try {
-        const response = await fetch('/api/assets', {
+        const response = await fetch('http://localhost:8080/api/assets', {
           headers: {
             'Authorization': `Bearer ${token}`,
           },

@@ -17,7 +17,7 @@ const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     // Initialize from cookie
     const getCookie = (name: string) => {
       const value = `; ${document.cookie}`;
-      const parts = value.split(`; ${name}=\`);
+      const parts = value.split(`; ${name}=`);
       if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
       return null;
     };
@@ -27,7 +27,7 @@ const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   useEffect(() => {
     // Update cookie when token changes
     if (token) {
-      document.cookie = `jwt=${token}; path=/; SameSite=Strict; Secure; httpOnly`;
+      document.cookie = `jwt=${token}; path=/; SameSite=Strict; Secure`;
     } else {
       document.cookie = 'jwt=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/';
     }
