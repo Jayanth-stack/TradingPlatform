@@ -108,6 +108,108 @@ npm install
 npm start
 ```
 
+## 🐳 Containerization & Deployment
+
+The application is fully containerized and can be deployed using various methods.
+
+### 🔄 Local Deployment with Docker Compose
+
+The simplest way to run the entire application stack locally:
+
+```bash
+# Build and start all containers
+make deploy-local
+
+# Or manually
+docker-compose up -d
+```
+
+This will start:
+- Frontend container (React app)
+- Backend container (Spring Boot app)
+- MySQL database
+
+Access the application at http://localhost
+
+### 🆓 Free Deployment Options
+
+#### 1. Render.com (Zero Cost)
+
+Generate deployment configuration for Render:
+
+```bash
+make render
+# or
+./deploy.sh render
+```
+
+Then:
+1. Create a Render account
+2. Connect your GitHub repository
+3. Create a Blueprint from the generated render.yaml file
+
+#### 2. Railway.app (Limited Free Tier)
+
+```bash
+make railway
+# or
+./deploy.sh railway
+```
+
+Then follow the instructions to deploy with Railway CLI.
+
+### ☁️ Cloud Provider Deployment
+
+#### AWS Deployment
+
+Prerequisites:
+- AWS CLI installed and configured
+- ECR repository access
+
+```bash
+make aws
+# or
+./deploy.sh aws
+```
+
+#### Terraform Deployment to AWS
+
+For infrastructure-as-code deployment:
+
+```bash
+# Initialize Terraform
+make terraform-init
+
+# Plan your deployment
+make terraform-plan
+
+# Apply the changes
+make terraform-apply
+```
+
+Adjust variables in `terraform/terraform.tfvars` before deploying.
+
+#### Heroku Deployment
+
+Prerequisites:
+- Heroku CLI installed and authenticated
+
+```bash
+make heroku
+# or
+./deploy.sh heroku
+```
+
+### 🧹 Cleanup
+
+To stop and remove all containers:
+
+```bash
+make clean
+# or
+./deploy.sh clean
+```
+
 ## 📄 API Authentication Flow
 
 1. **User Registration**:

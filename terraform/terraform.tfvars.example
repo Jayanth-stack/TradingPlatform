@@ -1,0 +1,28 @@
+# AWS Region
+aws_region = "us-east-1"
+
+# Environment name
+environment = "dev"
+
+# Application name
+app_name = "trading-platform"
+
+# Database credentials
+db_username = "admin"
+db_password = "change-me-to-a-secure-password"
+
+# Database configuration
+db_allocated_storage = 20
+db_instance_class = "db.t3.micro"
+
+# Container configuration
+frontend_container_port = 80
+backend_container_port = 8080
+
+# Task configuration
+backend_desired_count = 2
+frontend_desired_count = 2
+backend_cpu = "512"
+backend_memory = "1024"
+frontend_cpu = "256"
+frontend_memory = "512" 
