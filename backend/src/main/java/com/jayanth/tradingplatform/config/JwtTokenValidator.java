@@ -1,5 +1,20 @@
 package com.jayanth.tradingplatform.config;
 
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.crypto.SecretKey;
+
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import static com.jayanth.tradingplatform.config.JwtConstant.SECRET;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -9,20 +24,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.filter.OncePerRequestFilter;
-
-import javax.crypto.SecretKey;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
-import static com.jayanth.tradingplatform.config.JwtConstant.SECRET;
 
 public class JwtTokenValidator extends OncePerRequestFilter {
 
@@ -48,7 +49,7 @@ public class JwtTokenValidator extends OncePerRequestFilter {
             try {
                 SecretKey key = Keys.hmacShaKeyFor(SECRET.getBytes());
 
-                Claims claims = Jwts.builder()
+                Claims claims = Jwts.parser()
                         .setSigningKey(key)
                         .build()
                         .parseClaimsJws(jwt)

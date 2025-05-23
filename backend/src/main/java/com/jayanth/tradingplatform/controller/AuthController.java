@@ -113,7 +113,7 @@ public class AuthController {
         if(user.getTwoFactorAuth() != null && user.getTwoFactorAuth().isEnabled()){
             AuthResponse authResponse = new AuthResponse();
             authResponse.setMessage("Two Factor Auth is enabled");
-            authResponse.setIsTwoFactorAuthEnabled(true);
+            authResponse.setTwoFactorAuthEnabled(true);
             String otp = OtpUtils.generateOtp();
             TwoFactorOTP oldTwoFactorOTP = twoFactorOTPService.findByUser(authUser.getId());
             if(oldTwoFactorOTP != null){
@@ -152,7 +152,7 @@ public class AuthController {
         if(twoFactorOTPService.verifyTwoFactorOTP(twoFactorOTP, otp)){
             AuthResponse res = new AuthResponse();
             res.setMessage("Two Factor Auth verified");
-            res.setIsTwoFactorAuthEnabled(true);
+            res.setTwoFactorAuthEnabled(true);
             res.setJwt(twoFactorOTP.getJwt());
             return new ResponseEntity<>(res, HttpStatus.OK);
         }
