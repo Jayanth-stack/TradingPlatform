@@ -8,11 +8,11 @@ LABEL maintainer="jayanthalapati@gmail.com"
 VOLUME /tmp
 
 
-EXPOSE 5454
+EXPOSE 8080
 
 # Update the JAR_FILE argument to match your actual jar name
 # This should match your pom.xml or build.gradle artifact name
-ARG JAR_FILE=target/trading-platform-0.0.1-SNAPSHOT.jar
+ARG JAR_FILE=target/TradingPlatform-0.0.1-SNAPSHOT.jar
 
 # Add the application's jar to the container
 COPY ${JAR_FILE} app.jar
