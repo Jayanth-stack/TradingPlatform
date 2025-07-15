@@ -22,6 +22,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @RestController
 @RequestMapping("/auth")
@@ -39,6 +40,9 @@ public class AuthController {
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
 
     @PostMapping("/signup")
     public ResponseEntity<AuthResponse> register(@RequestBody User user, HttpServletResponse response) throws Exception {
@@ -54,7 +58,7 @@ public class AuthController {
 
         User newUser = new User();
         newUser.setEmail(email);
-        newUser.setPassword(password);
+        newUser.setPassword(passwordEncoder.encode(password));
         newUser.setFullName(fullName);
 
         User savedUser = userRepository.save(newUser);
@@ -139,7 +143,7 @@ public class AuthController {
             throw new BadCredentialsException("Invalid username or password");
         }
         
-        if(!password.equals(userDetails.getPassword())) {
+        if(!passwordEncoder.matches(password, userDetails.getPassword())) {
             throw new BadCredentialsException("Invalid password");
         }
 
