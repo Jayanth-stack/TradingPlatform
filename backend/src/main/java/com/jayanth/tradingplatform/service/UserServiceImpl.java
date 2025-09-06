@@ -7,10 +7,11 @@ import com.jayanth.tradingplatform.model.User;
 import com.jayanth.tradingplatform.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-@RestController
+@Service
 public class UserServiceImpl implements UserService {
 
     @Autowired

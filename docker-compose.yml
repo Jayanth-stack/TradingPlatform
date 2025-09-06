@@ -1,4 +1,4 @@
-version: '3.8'
+# The top-level 'version' key has been removed as it is obsolete.
 
 services:
   # Frontend React application
@@ -18,6 +18,9 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    # This line forces Docker to use the amd64 version, resolving the 
+    # 'no match for platform' error on arm64 machines (e.g., Apple M1/M2/M3).
+    platform: linux/amd64
     ports:
       - "8080:8080"
     depends_on:
@@ -33,6 +36,8 @@ services:
   # MySQL Database
   mysql:
     image: mysql:8.0
+    # This is a proactive addition to prevent similar platform issues with the MySQL image.
+    platform: linux/amd64
     ports:
       - "3306:3306"
     environment:
@@ -42,4 +47,4 @@ services:
       - mysql-data:/var/lib/mysql
 
 volumes:
-  mysql-data: 
+  mysql-data:
