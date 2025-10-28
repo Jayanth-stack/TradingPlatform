@@ -1,21 +1,15 @@
-# Use Java 17 (LTS version)
-FROM eclipse-temurin:17-jdk-alpine
+FROM maven:3.9.7-jdk-17-alpine AS build
 
-# Add Maintainer Info
-LABEL maintainer="jayanthalapati@gmail.com"
+WORKDIR /app
 
-# Add a volume pointing to /tmp
+
+COPY pom.xml .
+COPY src ./src
+RUN mvn -q -DskipTests package
+
+FROM maven:3.9-eclipse-temurin-17 AS build
 VOLUME /tmp
-
-
 EXPOSE 8080
+COPY --from=build /app/target/*-SNAPSHOT.jar app.jar
 
-# Update the JAR_FILE argument to match your actual jar name
-# This should match your pom.xml or build.gradle artifact name
-ARG JAR_FILE=target/TradingPlatform-0.0.1-SNAPSHOT.jar
-
-# Add the application's jar to the container
-COPY ${JAR_FILE} app.jar
-
-# Run the jar file
-ENTRYPOINT ["java","-jar","/app.jar"]
+ENTRYPOINT ["java", "-jar", "/app.jar"]
