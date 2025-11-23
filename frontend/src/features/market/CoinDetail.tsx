@@ -1,5 +1,6 @@
 import React from 'react';
-import { Box, Typography, Grid, Paper } from '@mui/material';
+import { Box, Typography, Paper } from '@mui/material';
+import Grid from '@mui/material/Grid';
 import { useParams } from 'react-router-dom';
 
 const CoinDetail: React.FC = () => {
