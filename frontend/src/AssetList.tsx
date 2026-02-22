@@ -5,11 +5,7 @@ interface Asset {
   id: string;
   name: string;
   symbol: string;
-  price: number;
-  marketCap: number;
-  change24h: number;
-  high24h: number;
-  low24h: number;
+  current_price: number;
 }
 
 const AssetList: React.FC = () => {
@@ -18,6 +14,11 @@ const AssetList: React.FC = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    if (!token) {
+      setAssets([]);
+      return;
+    }
+
     const fetchAssets = async () => {
       try {
         const response = await fetch('http://localhost:8080/api/assets', {
@@ -33,8 +34,9 @@ const AssetList: React.FC = () => {
 
         const data = await response.json();
         setAssets(data);
-      } catch (error: any) {
-        setError(error.message);
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Failed to fetch assets';
+        setError(message);
         console.error('Error fetching assets:', error);
       }
     };
@@ -49,7 +51,7 @@ const AssetList: React.FC = () => {
       <ul>
         {assets.map((asset) => (
           <li key={asset.id}>
-            {asset.name} ({asset.symbol}): ${asset.price}
+            {asset.name} ({asset.symbol}): ${asset.current_price}
           </li>
         ))}
       </ul>

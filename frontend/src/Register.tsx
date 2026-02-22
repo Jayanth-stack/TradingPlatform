@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useUser } from './UserContext';
 
 const Register: React.FC = () => {
@@ -7,12 +8,14 @@ const Register: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { setToken } = useUser();
+  const navigate = useNavigate();
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    setError('');
 
     try {
-      const response = await fetch('http://localhost:8080/auth/register', {
+      const response = await fetch('http://localhost:8080/auth/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -30,15 +33,11 @@ const Register: React.FC = () => {
       }
 
       const data = await response.json();
-      console.log('Registration successful:', data);
-      // Set the token using the UserContext
-       setToken(data.jwt);
-
-      // Redirect to login page after successful registration
-      window.location.href = '/login';
-
-    } catch (error: any) {
-      setError(error.message);
+      setToken(data.jwt ?? null);
+      navigate('/dashboard', { replace: true });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Registration failed';
+      setError(message);
       console.error('Registration error:', error);
     }
   };
@@ -77,6 +76,9 @@ const Register: React.FC = () => {
         </div>
         <button type="submit">Register</button>
       </form>
+      <p>
+        Already have an account? <Link to="/login">Login</Link>
+      </p>
     </div>
   );
 };

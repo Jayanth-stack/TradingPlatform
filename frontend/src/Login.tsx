@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useUser } from './UserContext';
 
 const Login: React.FC = () => {
@@ -6,12 +7,14 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { setToken } = useUser();
+  const navigate = useNavigate();
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    setError('');
 
     try {
-      const response = await fetch('http://localhost:8080/auth/login', {
+      const response = await fetch('http://localhost:8080/auth/signin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -28,15 +31,11 @@ const Login: React.FC = () => {
       }
 
       const data = await response.json();
-      console.log('Login successful:', data);
-      // Set the token using the UserContext
-      setToken(data.jwt);
-
-      // Redirect to a logged-in page
-      window.location.href = '/dashboard'; // Replace with your dashboard route
-
-    } catch (error: any) {
-      setError(error.message);
+      setToken(data.jwt ?? null);
+      navigate('/dashboard', { replace: true });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Login failed';
+      setError(message);
       console.error('Login error:', error);
     }
   };
@@ -66,6 +65,9 @@ const Login: React.FC = () => {
         </div>
         <button type="submit">Login</button>
       </form>
+      <p>
+        Need an account? <Link to="/register">Register</Link>
+      </p>
     </div>
   );
 };

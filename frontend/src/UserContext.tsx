@@ -25,9 +25,8 @@ const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   });
 
   useEffect(() => {
-    // Update cookie when token changes
     if (token) {
-      document.cookie = `jwt=${token}; path=/; SameSite=Strict; Secure`;
+      document.cookie = `jwt=${token}; path=/; SameSite=Lax`;
     } else {
       document.cookie = 'jwt=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/';
     }

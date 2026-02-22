@@ -1,29 +1,30 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useUser } from './UserContext';
 import AssetList from './AssetList';
 
 const Dashboard: React.FC = () => {
   const [message, setMessage] = useState('Loading...');
   const { token, logout } = useUser();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!token) {
-      window.location.href = '/login';
+      navigate('/login', { replace: true });
       return;
     }
 
     const fetchDashboardData = async () => {
       try {
-        const response = await fetch('http://localhost:8080/api/dashboard', {
+        const response = await fetch('http://localhost:8080/api', {
           headers: {
             'Authorization': `Bearer ${token}`,
           },
         });
 
         if (!response.ok) {
-          // Token might be invalid or expired
           logout();
-          window.location.href = '/login';
+          navigate('/login', { replace: true });
           return;
         }
 
@@ -36,10 +37,11 @@ const Dashboard: React.FC = () => {
     };
 
     fetchDashboardData();
-  }, [token, logout]);
+  }, [token, logout, navigate]);
 
   const handleLogout = () => {
     logout();
+    navigate('/login', { replace: true });
   };
 
   return (
